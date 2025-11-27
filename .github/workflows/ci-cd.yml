@@ -50,7 +50,17 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_KEY }}
           script: |
-            cd /home/deploy/project
+            cd /appmanager/project
             git pull origin main
-            docker-compose down
-            docker-compose up -d --build
+            
+            # Очистка старых контейнеров
+            docker stop $(docker ps -a -q) || true
+            docker rm $(docker ps -a -q) || true
+            
+            # Сборка нового образа
+            docker build -t app .
+            
+            # Запуск контейнера
+            docker run -d \
+              -p 80:8080 \
+              app
