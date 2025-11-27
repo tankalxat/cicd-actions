@@ -62,7 +62,6 @@ class AdditionPageTestCase(unittest.TestCase):
         self.assertEqual(response.data.decode(), '-2.0')
 
 class MultiplicationPageTestCase(unittest.TestCase):
-
     def setUp(self):
         # Создаем тестовый клиент
         self.app = app.test_client()
