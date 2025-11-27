@@ -3,14 +3,14 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Главная страница - перенаправляет на /readme
+# Главная страница - перенаправляет на /addition
 @app.route("/")
 def index():
-    return redirect("/attidion")
+    return redirect("/addition")
 
 # Эндпоинт "+"
-@app.route("/attidion")
-def attidion():
+@app.route("/addition")
+def addition():
     x = request.args.get("x", type=float)
     y = request.args.get("y", type=float)
 
@@ -57,7 +57,6 @@ def division():
     return str(result)
 
 if __name__ == "__main__":
-    # Запускаем сервер на порту 5000
-    # app.run(host="0.0.0.0", port=5000)
+    # Запускаем сервер на порту 80
     from waitress import serve
     serve(app, port=80)
