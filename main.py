@@ -52,6 +52,8 @@ def division():
 
     if x is None or y is None:
         return "Не переданы числа в параметрах запроса `x` и `y`"
+    if y == 0:
+        return "division by zero"
     
     result = x / y
     return str(result)
