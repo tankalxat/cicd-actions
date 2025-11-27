@@ -59,6 +59,5 @@ def division():
     return str(result)
 
 if __name__ == "__main__":
-    # Запускаем сервер на порту 80
     from waitress import serve
-    serve(app, port=80)
+    serve(app, port=8080)
