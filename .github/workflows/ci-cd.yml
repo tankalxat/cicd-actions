@@ -74,7 +74,9 @@ jobs:
           python-version: "3.10"
       - name: Running unittests
         run: |
-          python -m unittest discover
+          python -m pip install --upgrade pip  # Обновление pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi  # Установка зависимостей из файла
+          python -m unittest discover # запуск тестов
 
   # Задание для тестирования на MacOS (Intel)
   test-macos-intel:
@@ -91,7 +93,9 @@ jobs:
           python-version: "3.10"
       - name: Running unittests
         run: |
-          python -m unittest discover
+          python -m pip install --upgrade pip  # Обновление pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi  # Установка зависимостей из файла
+          python -m unittest discover # запуск тестов
 
   # Задание для тестирования на MacOS (Apple Silicon)
   test-macos-applesilicon:
@@ -108,7 +112,9 @@ jobs:
           python-version: "3.10"
       - name: Running unittests
         run: |
-          python -m unittest discover
+          python -m pip install --upgrade pip  # Обновление pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi  # Установка зависимостей из файла
+          python -m unittest discover # запуск тестов
 
   deploy:  # Задание для деплоя
     needs:  # Зависит от успешного завершения тестов
