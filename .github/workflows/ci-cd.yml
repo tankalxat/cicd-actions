@@ -54,13 +54,7 @@ jobs:
         python-version: "3.10"
         
     - name: Running unittests  # Запуск тестов
-      run: |
-        # создаем виртуальное окружение
-        python -m venv venv
-        # включаем виртуальное окружение
-        source ./venv/scripts/activate
-        # запускаем все тесты
-        python -m unittest discover
+      run: python -m unittest discover
 
   deploy:  # Задание для деплоя
     needs: test  # Зависит от успешного завершения тестов
