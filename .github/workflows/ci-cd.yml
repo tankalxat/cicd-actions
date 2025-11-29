@@ -1,75 +1,85 @@
-name: MEPHI CI/CD for Python application
+name: MEPHI CI/CD for Python application  # Название рабочего процесса CI/CD для Python-приложения
 
+# Секция триггеров - определяет, когда workflow будет запускаться
 on:
-  workflow_dispatch:
-  push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - main
+  workflow_dispatch:  # Позволяет запускать workflow вручную через интерфейс GitHub
+  
+  push:  # Автоматически запускает workflow при пуше в указанные ветки
+    branches:  # Список веток, на которые распространяется триггер
+    - main  # Только основная ветка
 
-permissions:
-  contents: read
+  pull_request:  # Автоматически запускает workflow при создании PR в указанные ветки
+    branches:
+    - main  # Только для PR в основную ветку
 
+permissions:  # Настройка прав доступа для workflow
+  contents: read  # Разрешает только чтение содержимого репозитория
+
+# Основная секция с заданиями (jobs)
 jobs:
-  build:
-    runs-on: ubuntu-24.04
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
+  build:  # Задание для сборки и проверки кода
+    runs-on: ubuntu-24.04  # Указывает окружение для выполнения задания
+    
+    steps:  # Последовательность шагов
+    - uses: actions/checkout@v4  # Клонирование репозитория
+    
+    - name: Set up Python 3.10  # Настройка окружения Python
+      uses: actions/setup-python@v3  # Использование официального action для Python
       with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
+        python-version: "3.10"  # Версия Python для установки
+        
+    - name: Install dependencies  # Установка зависимостей
+      run: |  # Скрипт установки
+        python -m pip install --upgrade pip  # Обновление pip
+        pip install flake8 pytest  # Установка инструментов проверки
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi  # Установка зависимостей из файла
+        
+    - name: Lint with flake8  # Проверка стиля кода
+      run: |  # Скрипт проверки
+        # Проверка синтаксических ошибок и неопределенных имен
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        # Дополнительная проверка сложности и длины строк
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-  
-  test:
-    needs: build
-    runs-on: ubuntu-24.04
-    steps:
-    - name: Set up Python 3.10
+
+  test:  # Задание для тестирования
+    needs: build  # Зависит от успешного завершения задания build
+    runs-on: ubuntu-24.04  # Окружение выполнения
+    
+    steps:  # Шаги тестирования
+    - name: Set up Python 3.10  # Настройка окружения
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
-    - name: Running unittests
-      run: |
-        python -m unittest discover
-  
-  deploy:
-    needs: test
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+        
+    - name: Running unittests  # Запуск тестов
+      run: python -m unittest discover  # Запуск всех тестов
+
+  deploy:  # Задание для деплоя
+    needs: test  # Зависит от успешного завершения тестов
+    runs-on: ubuntu-24.04  # Окружение выполнения
+    
+    steps:  # Шаги деплоя
+    - name: Checkout code  # Клонирование кода
+      uses: actions/checkout@v3
       
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_KEY }}
-          script: |
-            cd /app
-            git pull origin main
-            
-            # Очистка старых контейнеров
-            sudo docker stop $(sudo docker ps -a -q) || true
-            sudo docker rm $(sudo docker ps -a -q) || true
-            
-            # Сборка нового образа
-            sudo docker build -t app .
-            
-            # Запуск контейнера
-            sudo docker run -d \
-              -p 80:8080 \
-              app
+    - name: Deploy to server  # Деплой на сервер
+      uses: appleboy/ssh-action@v0.1.6  # Использование SSH action
+      with:
+        host: ${{ secrets.SERVER_HOST }}  # Хост сервера из секретов
+        username: ${{ secrets.SERVER_USER }}  # Пользователь из секретов
+        key: ${{ secrets.SERVER_KEY }}  # SSH-ключ из секретов
+        script: |  # Скрипт деплоя
+          cd /app  # Переход в директорию приложения
+          git pull origin main  # Обновление кода
+          
+          # Очистка старых контейнеров
+          sudo docker stop $(sudo docker ps -a -q) || true
+          sudo docker rm $(sudo docker ps -a -q) || true
+          
+          # Сборка нового образа
+          sudo docker build -t app .
+          
+          # Запуск контейнера
+          sudo docker run -d \
+            -p 80:8080 \
+            app
