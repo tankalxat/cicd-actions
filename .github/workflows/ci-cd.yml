@@ -88,3 +88,12 @@ jobs:
           sudo docker run -d \
             -p 80:8080 \
             app
+
+          # Очистка остановленных контейнеров
+          docker container prune -f
+          
+          # Удаление неиспользуемых образов старше 24 часов
+          docker image prune --filter "until=24h" -f
+          
+          # Удаление висящих образов
+          docker image prune -f
