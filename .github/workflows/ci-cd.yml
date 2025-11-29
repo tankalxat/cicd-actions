@@ -46,13 +46,21 @@ jobs:
     runs-on: ubuntu-24.04  # Окружение выполнения
     
     steps:  # Шаги тестирования
+    - uses: actions/checkout@v4  # Клонирование репозитория
+
     - name: Set up Python 3.10  # Настройка окружения
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
         
     - name: Running unittests  # Запуск тестов
-      run: python -m unittest discover  # Запуск всех тестов
+      run: |
+        # создаем виртуальное окружение
+        python -m venv venv
+        # включаем виртуальное окружение
+        source ./venv/scripts/activate
+        # запускаем все тесты
+        python -m unittest discover
 
   deploy:  # Задание для деплоя
     needs: test  # Зависит от успешного завершения тестов
