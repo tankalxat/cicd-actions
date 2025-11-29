@@ -90,10 +90,10 @@ jobs:
             app
 
           # Очистка остановленных контейнеров
-          docker container prune -f
+          sudo docker container prune -f
           
           # Удаление неиспользуемых образов старше 24 часов
-          docker image prune --filter "until=24h" -f
+          sudo docker image prune --filter "until=24h" -f
           
           # Удаление висящих образов
-          docker image prune -f
+          sudo docker image prune -f
