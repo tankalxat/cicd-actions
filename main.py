@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 # Главная страница - делает редирект на /addition
 @app.route("/")
-def index():
+def redirtoroot():
     return redirect("/addition")
 
 # Эндпоинт "+"
