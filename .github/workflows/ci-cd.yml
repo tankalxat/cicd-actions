@@ -2,8 +2,6 @@ name: MEPHI CI/CD for Python application  # Название рабочего п
 
 # Секция триггеров - определяет, когда workflow будет запускаться
 on:
-  workflow_dispatch:  # Позволяет запускать workflow вручную через интерфейс GitHub
-  
   push:  # Автоматически запускает workflow при пуше в указанные ветки
     branches:  # Список веток, на которые распространяется триггер
     - main  # Только основная ветка
@@ -14,6 +12,11 @@ on:
 
 permissions:  # Настройка прав доступа для workflow
   contents: read  # Разрешает только чтение содержимого репозитория
+
+# для запуска всех тестов параллельно
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 # Основная секция с заданиями (jobs)
 jobs:
@@ -41,7 +44,7 @@ jobs:
         # Дополнительная проверка сложности и длины строк
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-  test:  # Задание для тестирования
+  test-ubuntu:  # Задание для тестирования
     needs: build  # Зависит от успешного завершения задания build
     runs-on: ubuntu-24.04  # Окружение выполнения
     
@@ -59,8 +62,58 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi  # Установка зависимостей из файла
         python -m unittest discover # запуск тестов
 
+  # Задание для тестирования на Windows
+  test-windows:
+    needs: build  # Зависит от успешного завершения build
+    runs-on: windows-latest  # Используем последнюю версию Windows
+    steps:
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Running unittests
+        run: |
+          python -m unittest discover
+
+  # Задание для тестирования на MacOS (Intel)
+  test-macos-intel:
+    needs: build
+    runs-on: macos-latest  # Используем последнюю версию MacOS
+    strategy:
+      matrix:
+        architecture: [x86]  # Указываем архитектуру Intel
+    steps:
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Running unittests
+        run: |
+          python -m unittest discover
+
+  # Задание для тестирования на MacOS (Apple Silicon)
+  test-macos-applesilicon:
+    needs: build
+    runs-on: macos-latest  # Используем последнюю версию MacOS
+    strategy:
+      matrix:
+        architecture: [arm64]  # Указываем архитектуру Apple Silicon
+    steps:
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Running unittests
+        run: |
+          python -m unittest discover
+
   deploy:  # Задание для деплоя
-    needs: test  # Зависит от успешного завершения тестов
+    needs:  # Зависит от успешного завершения тестов
+    - test-ubuntu
+    - test-windows
+    - test-macos-intel
+    - test-macos-applesilicon
+
     runs-on: ubuntu-24.04  # Окружение выполнения
     
     steps:  # Шаги деплоя
