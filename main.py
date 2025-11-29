@@ -3,7 +3,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Главная страница - перенаправляет на /addition
+# Главная страница - делает редирект на /addition
 @app.route("/")
 def index():
     return redirect("/addition")
