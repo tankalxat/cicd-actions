@@ -67,6 +67,7 @@ jobs:
     needs: build  # Зависит от успешного завершения build
     runs-on: windows-latest  # Используем последнюю версию Windows
     steps:
+      - uses: actions/checkout@v4  # Клонирование репозитория
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
@@ -83,6 +84,7 @@ jobs:
       matrix:
         architecture: [x86]  # Указываем архитектуру Intel
     steps:
+      - uses: actions/checkout@v4  # Клонирование репозитория
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
@@ -99,6 +101,7 @@ jobs:
       matrix:
         architecture: [arm64]  # Указываем архитектуру Apple Silicon
     steps:
+      - uses: actions/checkout@v4  # Клонирование репозитория
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
